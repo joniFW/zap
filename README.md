@@ -9,32 +9,33 @@ With Zap, you can quickly locate movies based on partial titles, genres, or keyw
 1. Install cargo (for uv):
 [https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install)
 
-1. Install uv: 
+2. Install uv: 
 [https://docs.astral.sh/uv/getting-started/installation/](https://docs.astral.sh/uv/getting-started/installation/)
 
-1. Clone the repository:
+3. Clone the repository:
 ```bash
 git clone https://github.com/alvarotroya/zap.git
 ```
 
-1. Navigate to the project directory:
+4. Navigate to the project directory:
 ```bash
 cd zap
 ```
 
-1. Set up dev environment:
+5. Set up dev environment:
 ```bash
 uv python install 3.12
 uv venv
 source .venv/bin/activate
 ```
 
-1. Install pre-commit hooks:
+6. Install pre-commit hooks:
 ```bash
 pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
+7. Install Typer
 
-1. Run the main file:
+8. Run the main file:
 ```bash
 python main.py
 ```
@@ -43,7 +44,7 @@ or
 uv run main.py
 ```
 
-1. Display the `help` menu:
+To display display the `help` menu:
 ```bash
 python main.py --help
 ```
