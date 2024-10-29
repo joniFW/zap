@@ -1,0 +1,6 @@
+./.venv
+./assets/dataset
+__pycache__
+*.egg-info
+build
+.DS_Store
