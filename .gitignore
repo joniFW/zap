@@ -1,5 +1,5 @@
 ./.venv
-./assets/dataset
+assets
 __pycache__
 *.egg-info
 build
