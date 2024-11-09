@@ -26,6 +26,7 @@ cd zap
 ```bash
 uv python install 3.12
 uv venv
+uv sync
 source .venv/bin/activate
 ```
 
