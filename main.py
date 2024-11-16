@@ -66,6 +66,7 @@ def create_titles_with_rating_table():
             WHERE isAdult = 0 AND titleType = 'movie';"""
     # TODO: consider filtering for smaller database (can happen later, let's use all for now)
     # AND averageRating > 5 AND numVotes > 100;"""
+    # TODO: at some point consider what originalTitle and primaryTitle mean (we would like the english version)
 
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
@@ -80,6 +81,21 @@ def create_titles_with_rating_table():
             log("Database tables exist!", "debug")
 
         conn.commit()
+
+
+def quick_search() -> None:
+    with sqlite3.connect(DB_FILE) as conn:
+        cursor = conn.cursor()
+        sql_query = "SELECT primaryTitle FROM titles_with_rating;"
+        cursor.execute(sql_query)
+        rows = [row[0] for row in cursor.fetchall()]
+
+        name, _ = pipe_into_fzf(rows)
+
+        title_query = f"SELECT * FROM titles_with_rating WHERE primaryTitle='{name}';"
+        cursor.execute(title_query)
+
+        pipe_into_fzf([" ".join(list(cursor.fetchone()))])
 
 
 class MainMenuOptions(str, enum.Enum):
@@ -107,7 +123,7 @@ def main_menu():
 
     match choice:
         case MainMenuOptions.QUICK_SEARCH:
-            # Do a sql search for both movies and series
+            quick_search()
             log(f"You selected '{choice}'")
         case MainMenuOptions.MOVIES:
             # Do a sql search for movies
