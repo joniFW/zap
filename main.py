@@ -1,61 +1,84 @@
-import typer
+from typing import Literal
+import pathlib
 import sqlite3
-
-# import sqlalchemy as sa
 import subprocess
-import os
+import sys
 
-### TYPER STUFF ###
-app = typer.Typer()
+# TODO: print nice errors instead of python exceptions (do this when we're 40)
 
-
-@app.command()
-def hello(name: str):
-    print(f"Hello {name} from zap!")
-
-
-@app.command()
-def goodbye(name: str, formal: bool = False):
-    if formal:
-        print(f"Goodbye Ms. {name}. Have a good day.")
-    else:
-        print(f"Bye {name}")
+# TODO: make assets dir configurable via env var
+# TODO: replace CWD later by some configurable localtion (probably in HOME by default)
+ASSETS_DIR = pathlib.Path.cwd() / "assets"
+DB_FILE = pathlib.Path.cwd() / ".zap.db"
+TSV_TITLES = ASSETS_DIR / "title.basics.tsv"
+TSV_RATINGS = ASSETS_DIR / "title.ratings.tsv"
 
 
-###################
+# TODO: look at type hints in newer python versions
+def log(msg: str, level: Literal["info", "debug"] = "info") -> None:
+    # TODO: Add rich logging and different logging levels in the future
+    if level not in ["info", "debug"]:
+        raise ValueError(f"Unsupported logging level: {level}")
+
+    print(msg)
 
 
-create_filtered_table = """
-            CREATE TABLE filtered AS
+def bootstrap_database():
+    if not all([TSV_TITLES.exists(), TSV_RATINGS.exists()]):
+        raise FileNotFoundError(
+            f"Couldn't find TSV files ['{TSV_TITLES}', '{TSV_RATINGS}'] in '{ASSETS_DIR}'."
+        )
+
+    if not DB_FILE.exists():
+        log("Setting up DB...")
+        # TODO: Add some user logging or print some jokes...
+        subprocess.run(
+            [
+                "sqlite3",
+                f"{DB_FILE}",
+                ".mode ascii",
+                ".separator '\t' '\n'",
+                f".import {TSV_TITLES} titles",
+                f".import {TSV_RATINGS} ratings",
+            ],
+            check=True,
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+        )
+        # TODO: add error handling for failed DB creation
+
+        log("Created DB successfully...")
+
+    log(f"Found DB at {DB_FILE}")
+    create_titles_with_rating_table()
+
+
+def create_titles_with_rating_table():
+    # TODO: create table definition with correct column types
+    table_sql_create = """
+            CREATE TABLE titles_with_rating AS 
             SELECT titles.tconst, titleType, primaryTitle, startYear,
                    runtimeMinutes, genres, averageRating, numVotes
             FROM titles
             JOIN ratings ON ratings.tconst = titles.tconst
-            WHERE isAdult = 0 AND titleType = 'movie'
-                  AND averageRating > 5 AND numVotes > 100;"""
+            WHERE isAdult = 0 AND titleType = 'movie';"""
+    # TODO: consider filtering for smaller database (can happen later, let's use all for now)
+    # AND averageRating > 5 AND numVotes > 100;"""
 
-sql_code = []
-
-if __name__ == "__main__":
-    if not os.path.isfile("assets/database/movies.db"):
-        subprocess.call(
-            [
-                "sqlite3",
-                "assets/database/movies.db",
-                ".mode ascii",
-                ".separator '\t' '\n'",
-                ".import assets/dataset/title.basics.tsv titles",
-                ".import assets/dataset/title.ratings.tsv ratings",
-            ]
-        )
-    with sqlite3.connect("assets/database/movies.db") as conn:
+    with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
         # check if filtered table exists in the database, else create it
         if not cursor.execute(
             """SELECT name FROM sqlite_master
-               WHERE type='table' AND name='filtered';"""
+            WHERE type='table' AND name='titles_with_rating';"""
         ).fetchall():
-            cursor.execute(create_filtered_table)
-        for command in sql_code:
-            cursor.execute(command)
+            log("Creating some DB tables..")
+            cursor.execute(table_sql_create)
+        else:
+            log("Database tables exist!", "debug")
+
         conn.commit()
+
+
+if __name__ == "__main__":
+    bootstrap_database()

@@ -2,5 +2,6 @@
 assets
 __pycache__
 *.egg-info
+*.db
 build
 .DS_Store
