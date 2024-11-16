@@ -1,8 +1,10 @@
 from typing import Literal
 import pathlib
 import sqlite3
-import subprocess
 import sys
+import subprocess
+import enum
+
 
 # TODO: print nice errors instead of python exceptions (do this when we're 40)
 
@@ -64,6 +66,7 @@ def create_titles_with_rating_table():
             WHERE isAdult = 0 AND titleType = 'movie';"""
     # TODO: consider filtering for smaller database (can happen later, let's use all for now)
     # AND averageRating > 5 AND numVotes > 100;"""
+    # TODO: at some point consider what originalTitle and primaryTitle mean (we would like the english version)
 
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
@@ -80,5 +83,68 @@ def create_titles_with_rating_table():
         conn.commit()
 
 
-if __name__ == "__main__":
+def quick_search() -> None:
+    with sqlite3.connect(DB_FILE) as conn:
+        cursor = conn.cursor()
+        sql_query = "SELECT primaryTitle FROM titles_with_rating;"
+        cursor.execute(sql_query)
+        rows = [row[0] for row in cursor.fetchall()]
+
+        name, _ = pipe_into_fzf(rows)
+
+        title_query = f"SELECT * FROM titles_with_rating WHERE primaryTitle='{name}';"
+        cursor.execute(title_query)
+
+        pipe_into_fzf([" ".join(list(cursor.fetchone()))])
+
+
+class MainMenuOptions(str, enum.Enum):
+    QUICK_SEARCH = "Quick Search"
+    MOVIES = "Movies"
+    SERIES = "Series"
+    EXPLORE = "Explore"
+
+
+def pipe_into_fzf(lines: list[str], prompt: str = "") -> tuple[str, str]:
+    fzf_proc = subprocess.Popen(
+        ["fzf", "--reverse", "--prompt", prompt],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    stdout, stderr = fzf_proc.communicate(input="\n".join(lines))
+
+    return stdout.rstrip(), stderr.rstrip()
+
+
+def main_menu():
+    choice, _ = pipe_into_fzf(list(MainMenuOptions), prompt="Select an option below: ")
+
+    match choice:
+        case MainMenuOptions.QUICK_SEARCH:
+            quick_search()
+            log(f"You selected '{choice}'")
+        case MainMenuOptions.MOVIES:
+            # Do a sql search for movies
+            log(f"You selected '{choice}'")
+        case MainMenuOptions.SERIES:
+            # Do a sql search for series
+            log(f"You selected '{choice}'")
+        case MainMenuOptions.EXPLORE:
+            # This would allow you to browse the database with more control, out of scope for now...
+            log(f"You selected '{choice}'")
+        case "":
+            log("Nothing selected, good bye!")
+            sys.exit(0)
+        case _:
+            raise ValueError(f"'{choice}' is not a valid main menu entry!")
+
+
+def main():
     bootstrap_database()
+    main_menu()
+
+
+if __name__ == "__main__":
+    main()
