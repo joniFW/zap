@@ -20,7 +20,7 @@ def pipe_into_fzf(lines: list[str], prompt: str = "") -> tuple[str, str]:
     )
     stdout, stderr = fzf_proc.communicate(input="\n".join(lines))
 
-    return stdout.rstrip().strip("\0").strip(), stderr.rstrip().strip("\0").strip()
+    return stdout.rstrip(), stderr.rstrip()
 
 
 def main():
