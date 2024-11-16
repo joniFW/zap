@@ -5,6 +5,7 @@ import sqlite3
 import subprocess
 import os
 
+### TYPER STUFF ###
 app = typer.Typer()
 
 
@@ -19,6 +20,9 @@ def goodbye(name: str, formal: bool = False):
         print(f"Goodbye Ms. {name}. Have a good day.")
     else:
         print(f"Bye {name}")
+
+
+###################
 
 
 create_filtered_table = """
@@ -49,7 +53,7 @@ if __name__ == "__main__":
         # check if filtered table exists in the database, else create it
         if not cursor.execute(
             """SELECT name FROM sqlite_master
-                    WHERE type='table' AND name='filtered';"""
+               WHERE type='table' AND name='filtered';"""
         ).fetchall():
             cursor.execute(create_filtered_table)
         for command in sql_code:
