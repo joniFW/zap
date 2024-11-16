@@ -47,12 +47,10 @@ if __name__ == "__main__":
     with sqlite3.connect("assets/database/movies.db") as conn:
         cursor = conn.cursor()
         # check if filtered table exists in the database, else create it
-        if cursor.execute(
+        if not cursor.execute(
             """SELECT name FROM sqlite_master
                     WHERE type='table' AND name='filtered';"""
         ).fetchall():
-            print("The table exists already")
-        else:
             cursor.execute(create_filtered_table)
         for command in sql_code:
             cursor.execute(command)
