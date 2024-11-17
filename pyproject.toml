@@ -25,6 +25,7 @@ target-version = "py310"
 exclude = ["assets"]
 fix = true
 show-fixes = true
+unsafe-fixes = true
 
 [tool.ruff.lint]
 extend-select = [
@@ -36,6 +37,9 @@ extend-select = [
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
     "ARG001", # unused arguments in functions
+]
+extend-ignore = [
+    "E501",  # ignore line too long rule
 ]
 
 [tool.ruff.lint.pyupgrade]

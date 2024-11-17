@@ -1,5 +1,4 @@
 import enum
-import os
 import pathlib
 import sqlite3
 import subprocess
@@ -66,7 +65,8 @@ def create_titles_with_rating_table():
             WHERE isAdult = 0 AND titleType = 'movie';"""
     # TODO: consider filtering for smaller database (can happen later, let's use all for now)
     # AND averageRating > 5 AND numVotes > 100;"""
-    # TODO: at some point consider what originalTitle and primaryTitle mean (we would like the english version)
+    # TODO: at some point consider what originalTitle and primaryTitle mean (we
+    # would like the english version)
 
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
