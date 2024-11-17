@@ -27,7 +27,7 @@ fix = true
 show-fixes = true
 
 [tool.ruff.lint]
-select = [
+extend-select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # pyflakes
@@ -36,11 +36,6 @@ select = [
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
     "ARG001", # unused arguments in functions
-]
-ignore = [
-    "E501",  # line too long, handled by black
-    "B008",  # do not perform function calls in argument defaults
-    "W191",  # indentation contains tabs
 ]
 
 [tool.ruff.lint.pyupgrade]
