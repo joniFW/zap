@@ -55,14 +55,16 @@ def bootstrap_database():
 
 
 def create_titles_with_rating_table():
-    # TODO: create table definition with correct column types
     table_sql_create = """
             CREATE TABLE titles_with_rating AS
             SELECT titles.tconst, titleType, primaryTitle, startYear,
-                   runtimeMinutes, genres, averageRating, numVotes
+                   runtimeMinutes, genres,
+                   CAST(averageRating AS DECIMAL(3,1)) AS averageRating,
+                   CAST(numVotes AS INT) AS numVotes
             FROM titles
             JOIN ratings ON ratings.tconst = titles.tconst
-            WHERE isAdult = 0 AND titleType = 'movie';"""
+            WHERE isAdult = 0 AND titleType = 'movie'
+            ORDER BY averageRating DESC, numVotes DESC;"""
     # TODO: consider filtering for smaller database (can happen later, let's use all for now)
     # AND averageRating > 5 AND numVotes > 100;"""
     # TODO: at some point consider what originalTitle and primaryTitle mean (we
@@ -94,8 +96,14 @@ def quick_search() -> None:
 
         title_query = f"SELECT * FROM titles_with_rating WHERE primaryTitle='{name}';"
         cursor.execute(title_query)
-
-        pipe_into_fzf([" ".join(list(cursor.fetchone()))])
+        _, _, title, year, mins, genre, rating, votes = cursor.fetchone()
+        # TODO: figure out if line wrap is possible in fzf
+        out = (
+            f"{title} ({year}), {mins} minutes; "
+            f"Rating: {rating}/10 with {votes} votes; "
+            f"Genre(s): {genre.replace(',', ', ')}"
+        )
+        pipe_into_fzf([out])
 
 
 class MainMenuOptions(str, enum.Enum):
