@@ -1,5 +1,6 @@
 ./.venv
 assets
+node_modules
 __pycache__
 *.egg-info
 *.db

@@ -1,10 +1,9 @@
-from typing import Literal
+import enum
 import pathlib
 import sqlite3
-import sys
 import subprocess
-import enum
-
+import sys
+from typing import Literal
 
 # TODO: print nice errors instead of python exceptions (do this when we're 40)
 
@@ -58,7 +57,7 @@ def bootstrap_database():
 def create_titles_with_rating_table():
     # TODO: create table definition with correct column types
     table_sql_create = """
-            CREATE TABLE titles_with_rating AS 
+            CREATE TABLE titles_with_rating AS
             SELECT titles.tconst, titleType, primaryTitle, startYear,
                    runtimeMinutes, genres, averageRating, numVotes
             FROM titles
@@ -66,7 +65,8 @@ def create_titles_with_rating_table():
             WHERE isAdult = 0 AND titleType = 'movie';"""
     # TODO: consider filtering for smaller database (can happen later, let's use all for now)
     # AND averageRating > 5 AND numVotes > 100;"""
-    # TODO: at some point consider what originalTitle and primaryTitle mean (we would like the english version)
+    # TODO: at some point consider what originalTitle and primaryTitle mean (we
+    # would like the english version)
 
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
