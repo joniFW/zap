@@ -59,7 +59,9 @@ def create_titles_with_rating_table():
     table_sql_create = """
             CREATE TABLE titles_with_rating AS
             SELECT titles.tconst, titleType, primaryTitle, startYear,
-                   runtimeMinutes, genres, averageRating, numVotes
+                   runtimeMinutes, genres,
+                   CAST(averageRating AS DECIMAL(3,1)) AS averageRating,
+                   CAST(numVotes AS INT) AS numVotes
             FROM titles
             JOIN ratings ON ratings.tconst = titles.tconst
             WHERE isAdult = 0 AND titleType = 'movie';"""
