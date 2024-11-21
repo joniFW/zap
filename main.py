@@ -96,8 +96,14 @@ def quick_search() -> None:
 
         title_query = f"SELECT * FROM titles_with_rating WHERE primaryTitle='{name}';"
         cursor.execute(title_query)
-
-        pipe_into_fzf([" ".join(list(cursor.fetchone()))])
+        _, _, title, year, mins, genre, rating, votes = cursor.fetchone()
+        # TODO: figure out if line wrap is possible in fzf
+        out = (
+            f"{title} ({year}), {mins} minutes; "
+            f"Rating: {rating}/10 with {votes} votes; "
+            f"Genre(s): {genre.replace(',', ', ')}"
+        )
+        pipe_into_fzf([out])
 
 
 class MainMenuOptions(str, enum.Enum):
