@@ -55,7 +55,6 @@ def bootstrap_database():
 
 
 def create_titles_with_rating_table():
-    # TODO: create table definition with correct column types
     table_sql_create = """
             CREATE TABLE titles_with_rating AS
             SELECT titles.tconst, titleType, primaryTitle, startYear,
@@ -64,7 +63,8 @@ def create_titles_with_rating_table():
                    CAST(numVotes AS INT) AS numVotes
             FROM titles
             JOIN ratings ON ratings.tconst = titles.tconst
-            WHERE isAdult = 0 AND titleType = 'movie';"""
+            WHERE isAdult = 0 AND titleType = 'movie'
+            ORDER BY averageRating DESC, numVotes DESC;"""
     # TODO: consider filtering for smaller database (can happen later, let's use all for now)
     # AND averageRating > 5 AND numVotes > 100;"""
     # TODO: at some point consider what originalTitle and primaryTitle mean (we
